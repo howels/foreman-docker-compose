@@ -1,13 +1,18 @@
-version: '2'
+version: '2.1'
 services:
   memcache:
     image: memcached
   db:
-    image: postgres:9.5
+    image: postgres:9.6
     environment:
       - PGDATA=/var/lib/postgresql/data/pgdata
     volumes:
       - ./pgdata:/var/lib/postgresql/data/pgdata:z
+    healthcheck:
+      test: ["CMD", "psql -h localhost -U postgres -c '\\l'"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
   foreman:
     build: foreman
     command: rails server -p 80 -b 0.0.0.0
@@ -48,3 +53,4 @@ services:
       - ./webpack:/usr/src/app/public/webpack
     depends_on:
       - db
+      
